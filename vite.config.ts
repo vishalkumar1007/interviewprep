@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// GitHub Pages project site: https://vishalkumar1007.github.io/Interview-prep-frontend/
+// GitHub Pages project site: https://vishalkumar1007.github.io/interviewprep/
 const base = process.env.VITE_BASE_PATH || '/'
 
 export default defineConfig({
