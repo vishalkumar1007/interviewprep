@@ -33,8 +33,9 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          # Project Pages URL: https://vishalkumar1007.github.io/Interview-prep-frontend/
-          VITE_BASE_PATH: /Interview-prep-frontend/
+          # After renaming the repo to "interviewprep":
+          # https://vishalkumar1007.github.io/interviewprep/
+          VITE_BASE_PATH: /interviewprep/
           VITE_API_URL: https://interview-prep-backend-teal.vercel.app
 
       - name: SPA fallback for client routes
