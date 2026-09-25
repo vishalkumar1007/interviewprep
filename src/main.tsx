@@ -7,12 +7,14 @@ import { ProgressProvider } from './context/ProgressContext'
 import { ThemeProvider } from './context/ThemeContext'
 import './styles.css'
 
+const routerBasename = import.meta.env.BASE_URL.replace(/\/$/, '') || undefined
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
       <AuthProvider>
         <ProgressProvider>
-          <BrowserRouter>
+          <BrowserRouter basename={routerBasename}>
             <App />
           </BrowserRouter>
         </ProgressProvider>
