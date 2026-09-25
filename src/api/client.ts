@@ -1,16 +1,46 @@
 import type { Account, CurriculumSkill, DsaPattern, DsaProblem, Plan, PlanTask, Progress, ScheduleIndex } from '../types'
 
 const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
+const TOKEN_KEY = 'prepbase_token'
+
+export function getToken(): string | null {
+  try {
+    return localStorage.getItem(TOKEN_KEY)
+  } catch {
+    return null
+  }
+}
+
+export function setToken(token: string | null) {
+  try {
+    if (token) localStorage.setItem(TOKEN_KEY, token)
+    else localStorage.removeItem(TOKEN_KEY)
+  } catch {
+    /* ignore */
+  }
+}
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers as Record<string, string> | undefined),
+  }
+  const token = getToken()
+  if (token) headers.Authorization = `Bearer ${token}`
+
   const res = await fetch(`${API_BASE}${path}`, {
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
     ...options,
+    headers,
   })
   if (res.status === 204) return undefined as T
   const data = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error((data as { error?: string }).error || 'Request failed')
+  if (!res.ok) {
+    if (res.status === 401) setToken(null)
+    throw new Error((data as { error?: string }).error || 'Request failed')
+  }
+  const withToken = data as Account & { token?: string }
+  if (withToken?.token) setToken(withToken.token)
   return data as T
 }
 
@@ -18,10 +48,16 @@ export const api = {
   health: () => request<{ ok: boolean }>('/api/health'),
   me: () => request<Account>('/api/auth/me'),
   signup: (body: Record<string, unknown>) =>
-    request<Account>('/api/auth/signup', { method: 'POST', body: JSON.stringify(body) }),
+    request<Account & { token: string }>('/api/auth/signup', { method: 'POST', body: JSON.stringify(body) }),
   login: (body: { email: string; password: string }) =>
-    request<Account>('/api/auth/login', { method: 'POST', body: JSON.stringify(body) }),
-  logout: () => request<void>('/api/auth/logout', { method: 'POST' }),
+    request<Account & { token: string }>('/api/auth/login', { method: 'POST', body: JSON.stringify(body) }),
+  logout: async () => {
+    try {
+      await request<void>('/api/auth/logout', { method: 'POST' })
+    } finally {
+      setToken(null)
+    }
+  },
   updateProfile: (body: Record<string, unknown>) =>
     request<Account>('/api/profile', { method: 'PUT', body: JSON.stringify(body) }),
   getProgress: () => request<Progress>('/api/progress'),

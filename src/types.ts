@@ -12,7 +12,8 @@ export type Profile = {
 
 export type User = { id: number; name: string; email: string }
 
-export type Account = { user: User; profile: Profile }
+export type Account = { user: User; profile: Profile; token?: string }
+
 
 export type Progress = {
   tasks: Record<string, Status>
