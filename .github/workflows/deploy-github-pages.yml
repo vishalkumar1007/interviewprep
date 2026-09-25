@@ -35,7 +35,7 @@ jobs:
         env:
           # Project Pages URL: https://vishalkumar1007.github.io/Interview-prep-frontend/
           VITE_BASE_PATH: /Interview-prep-frontend/
-          VITE_API_URL: ${{ vars.VITE_API_URL }}
+          VITE_API_URL: https://interview-prep-backend-teal.vercel.app
 
       - name: SPA fallback for client routes
         run: cp dist/index.html dist/404.html
